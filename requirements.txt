@@ -3,3 +3,4 @@ uvicorn
 databricks-sql-connector
 python-dotenv
 jinja2
+pyarrow
