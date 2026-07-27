@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizador y Filtro de Vuelos - Databricks</title>
+    <!-- Tailwind CSS desde CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen p-8">
+    <div class="max-w-6xl mx-auto">
+        
+        <!-- Encabezado -->
+        <header class="mb-8 flex justify-between items-center border-b border-slate-800 pb-5">
+            <div>
+                <h1 class="text-3xl font-bold text-sky-400">✈️ Dashboard de Vuelos</h1>
+                <p class="text-slate-400 text-sm mt-1">Filtra y consume información en tiempo real desde Databricks</p>
+            </div>
+            <span class="bg-sky-500/10 text-sky-400 text-xs font-semibold px-3 py-1.5 rounded-full border border-sky-500/20">
+                selectdata.vuelos_india.flights
+            </span>
+        </header>
+
+        <!-- Formulario de Filtros (Comboboxes + Botón) -->
+        <form method="GET" action="/" class="bg-slate-800 p-6 rounded-xl border border-slate-700/60 mb-8 shadow-lg">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                
+                <!-- Combobox 1: Airline -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Aerolínea (Airline)</label>
+                    <select name="airline" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-sky-500">
+                        <option value="">-- Todas las Aerolíneas --</option>
+                        {% for item in opciones_airlines %}
+                            <option value="{{ item }}" {% if selected_airline == item %}selected{% endif %}>{{ item }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Combobox 2: Source -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Origen (Source)</label>
+                    <select name="source" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-sky-500">
+                        <option value="">-- Todos los Orígenes --</option>
+                        {% for item in opciones_sources %}
+                            <option value="{{ item }}" {% if selected_source == item %}selected{% endif %}>{{ item }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Combobox 3: Destination -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Destino (Destination)</label>
+                    <select name="destination" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-sky-500">
+                        <option value="">-- Todos los Destinos --</option>
+                        {% for item in opciones_destinations %}
+                            <option value="{{ item }}" {% if selected_destination == item %}selected{% endif %}>{{ item }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="flex justify-end gap-3 border-t border-slate-700/50 pt-4">
+                <a href="/" class="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-slate-200 bg-slate-700/50 hover:bg-slate-700 rounded-lg transition-colors">
+                    Limpiar Filtros
+                </a>
+                <button type="submit" class="px-5 py-2 text-xs font-semibold text-white bg-sky-600 hover:bg-sky-500 rounded-lg transition-colors shadow-md shadow-sky-600/20">
+                    🔍 Buscar
+                </button>
+            </div>
+        </form>
+
+        <!-- Tabla de Datos -->
+        <div class="bg-slate-800/50 rounded-xl border border-slate-700/50 overflow-hidden shadow-xl backdrop-blur">
+            {% if error %}
+                <div class="p-6 bg-red-500/10 border-l-4 border-red-500 text-red-400">
+                    <p class="font-bold">Ocurrió un error al cargar los datos:</p>
+                    <p class="text-sm font-mono mt-1">{{ error }}</p>
+                </div>
+            {% else %}
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-800 text-slate-300 text-xs uppercase tracking-wider border-b border-slate-700">
+                                {% for columna in columnas %}
+                                    <th class="py-4 px-6 font-semibold">{{ columna }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-700/50 text-sm text-slate-300">
+                            {% if registros %}
+                                {% for fila in registros %}
+                                    <tr class="hover:bg-slate-700/30 transition-colors">
+                                        {% for valor in fila %}
+                                            <td class="py-3.5 px-6 font-mono text-xs">{{ valor }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="100%" class="py-8 text-center text-slate-400 text-sm">
+                                        No se encontraron vuelos con los filtros seleccionados.
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="p-4 bg-slate-800/80 text-xs text-slate-400 border-t border-slate-700/50 text-right">
+                    Mostrando {{ registros|length }} registros
+                </div>
+            {% endif %}
+        </div>
+
+    </div>
+</body>
+</html>
